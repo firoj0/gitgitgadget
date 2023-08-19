@@ -24,7 +24,7 @@
   },
   "homepage": "https://gitgitgadget.github.io/",
   "files": [
-      "lib/*.ts"
+    "lib/*.ts"
   ],
   "jest": {
     "moduleFileExtensions": [
