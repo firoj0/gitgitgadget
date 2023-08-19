@@ -865,7 +865,7 @@ GitGitGadget needs an email address to Cc: you on your contribution, so that you
              installationID?: number;
              name: string;
              privateKey?: string;
-        }): Promise<void> {
+        }, storeInGitConfig: boolean = true): Promise<string> {
         if (!options.privateKey) {
             const appName = options.name === this.config.app.name ? this.config.app.name : this.config.app.altname;
             const appNameKey = `${appName}.privateKey`;
@@ -898,9 +898,12 @@ GitGitGadget needs an email address to Cc: you on your contribution, so that you
             {
                 installation_id: options.installationID,
             });
-        const configKey = options.name === this.config.app.name ?
-            `${this.config.app.name}.githubToken` : `gitgitgadget.${options.name}.githubToken`;
-        await git(["config", configKey, result.data.token]);
+        if (storeInGitConfig) {
+            const configKey = options.name === this.config.app.name ?
+                `${this.config.app.name}.githubToken` : `gitgitgadget.${options.name}.githubToken`;
+            await git(["config", configKey, result.data.token]);
+        }
+        return result.data.token;
     };
 
     public static getActionsCore(): typeof import("@actions/core") {
