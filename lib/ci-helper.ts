@@ -5,13 +5,14 @@ import { ILintError, LintCommit } from "./commit-lint";
 import { commitExists, git, emptyTreeName } from "./git";
 import { GitNotes } from "./git-notes";
 import { GitGitGadget, IGitGitGadgetOptions } from "./gitgitgadget";
+import { getConfig } from "./gitgitgadget-config";
 import { GitHubGlue, IGitHubUser, IPRComment, IPRCommit, IPullRequestInfo, RequestError } from "./github-glue";
 import { toPrettyJSON } from "./json-util";
 import { MailArchiveGitHelper } from "./mail-archive-helper";
 import { MailCommitMapping } from "./mail-commit-mapping";
 import { IMailMetadata } from "./mail-metadata";
 import { IPatchSeriesMetadata } from "./patch-series-metadata";
-import { IConfig, getConfig } from "./project-config";
+import { IConfig, getExternalConfig, setConfig } from "./project-config";
 import { getPullRequestKeyFromURL, pullRequestKey } from "./pullRequestKey";
 
 const readFile = util.promisify(fs.readFile);
@@ -25,7 +26,7 @@ type CommentFunction = (comment: string) => Promise<void>;
  * commit.
  */
 export class CIHelper {
-    public readonly config: IConfig = getConfig();
+    public readonly config: IConfig;
     public readonly workDir: string;
     public readonly notes: GitNotes;
     public readonly urlBase: string;
@@ -39,7 +40,12 @@ export class CIHelper {
     private mail2CommitMapUpdated: boolean;
     protected maxCommitsExceptions: string[];
 
-    public constructor(workDir: string, skipUpdate?: boolean, gggConfigDir = ".") {
+    public static async getConfig(configFile?: string):Promise<IConfig> {
+        return configFile ? await getExternalConfig(configFile) : getConfig();
+    }
+
+    public constructor(workDir: string, config: IConfig, skipUpdate?: boolean, gggConfigDir = ".") {
+        this.config = config !== undefined ? setConfig(config) : getConfig();
         this.gggConfigDir = gggConfigDir;
         this.workDir = workDir;
         this.notes = new GitNotes(workDir);
