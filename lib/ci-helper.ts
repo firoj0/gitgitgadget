@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as util from "util";
 import addressparser from "nodemailer/lib/addressparser";
+import * as core from "@actions/core";
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
 import { ILintError, LintCommit } from "./commit-lint";
@@ -901,6 +902,10 @@ GitGitGadget needs an email address to Cc: you on your contribution, so that you
             `${this.config.app.name}.githubToken` : `gitgitgadget.${options.name}.githubToken`;
         await git(["config", configKey, result.data.token]);
     };
+
+    public static getActionsCore(): typeof import("@actions/core") {
+        return core;
+    }
 
     private async getPRInfo(prKey: pullRequestKey): Promise<IPullRequestInfo> {
         const pr = await this.github.getPRInfo(prKey);
