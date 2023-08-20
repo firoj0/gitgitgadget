@@ -74325,6 +74325,15 @@ class GitHubGlue {
         this.repo = repo;
         this.workDir = workDir;
     }
+    async addReaction(owner, repo, commentID, reaction) {
+        await this.ensureAuthenticated(owner);
+        await this.client.rest.reactions.createForIssueComment({
+            owner,
+            repo,
+            comment_id: commentID,
+            content: reaction
+        });
+    }
     async annotateCommit(originalCommit, gitGitCommit, repositoryOwner, baseOwner) {
         const output = await (0, git_1.git)(["show", "-s", "--format=%h %cI", gitGitCommit], { workDir: this.workDir });
         const match = output.match(/^(\S+) (\S+)$/);
